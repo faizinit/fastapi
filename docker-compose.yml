@@ -1,0 +1,26 @@
+services:
+  api:
+    build: .
+    image: central-security:latest
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      CS_ENVIRONMENT: ${CS_ENVIRONMENT:-production}
+      CS_DOCS_ENABLED: ${CS_DOCS_ENABLED:-false}
+      CS_DATABASE_URL: sqlite+aiosqlite:////data/central_security.db
+    ports:
+      - "8000:8000"
+    volumes:
+      - api_data:/data
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  api_data:

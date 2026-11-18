@@ -1,0 +1,74 @@
+[project]
+name = "central-security"
+version = "0.1.0"
+description = "Centralized Security API: the single controlled entry point for business applications using LLMs."
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi~=0.163.1",
+    "uvicorn[standard]~=0.54.0",
+    "pydantic~=2.14.3",
+    "pydantic-settings~=2.16.3",
+    "sqlalchemy[asyncio]~=2.1.9",
+    "aiosqlite~=0.22.1",
+    "alembic~=1.20.1",
+    "PyJWT[crypto]~=2.15.1",
+    "httpx~=0.28.1",
+    "structlog~=26.1.0",
+    "jsonschema~=4.26.0",
+    "prometheus-client~=0.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest~=9.2.0",
+    "pytest-asyncio~=1.5.0",
+    "pytest-cov~=7.1.0",
+    "ruff~=0.17.5",
+    "mypy~=2.4.1",
+    "pre-commit~=4.7.0",
+    "types-jsonschema~=4.26.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "SIM", "S", "T20", "RET", "PT", "ASYNC", "RUF", "TID"]
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "S311"]
+"tests/unit/test_policy_engine.py" = ["RUF001"]
+"scripts/**" = ["T201"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["app", "tests", "scripts", "migrations/env.py"]
+exclude = ["migrations/versions"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+addopts = "--strict-markers --cov=app --cov-report=term-missing --cov-fail-under=85"
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+branch = true
+source = ["app"]
+concurrency = ["thread", "greenlet"]
+
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:"]
