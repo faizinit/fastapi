@@ -72,7 +72,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.recorder = SecurityEventRecorder(database, app.state.metrics)
         app.state.audit = AuditService(database)
         app.state.provider_gateway = ProviderGateway(LocalProvider(), settings)
-        purge_task = asyncio.create_task(rate_limiter.purge_forever(RATE_COUNTER_PURGE_SECONDS))
+        # Start a background task to purge expired rate limit counters every RATE_COUNTER_PURGE_SECONDS 60 seconds.
+        purge_task = asyncio.create_task(rate_limiter.purge_forever(RATE_COUNTER_PURGE_SECONDS))  
         logger.info("startup_complete", environment=settings.environment.value)
         try:
             yield
