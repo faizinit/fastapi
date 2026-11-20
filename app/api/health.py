@@ -65,3 +65,27 @@ async def metrics(
         if authorization is None or not hmac.compare_digest(authorization, expected):
             raise UnauthorizedError("A valid metrics token is required.")
     return Response(content=metrics_registry.render(), media_type=metrics_registry.content_type)
+
+
+
+"""
+/health always returns ok. Docker or Kubernetes use it to ask "is the process alive?"
+/ready pings the database and checks the signing keys. If either fails, it returns 503 
+and the load balancer stops sending traffic. 
+It's like a restaurant that's open (alive) but whose kitchen has no gas (not ready).
+/metrics exposes Prometheus counters. When a token is configured, it's checked with 
+hmac.compare_digest, a comparison that always takes the same time, so an attacker can't
+ guess the token one character at a time by measuring response times.
+
+"""
+
+
+""" 
+Phase 3 summary
+Routing is three nested routers that build the URL step by step (/api/v1 + /llm + /process).
+deps.py is the toolbox. It pulls shared objects from app.state and defines the 
+two security gates: PrincipalDep (valid token, with brute-force throttling) and 
+AdminDep/AuditorDep/ReviewerDep (role checks).
+Endpoints are thin. They parse input, inject dependencies, and call a service. 
+No business rules live here
+"""

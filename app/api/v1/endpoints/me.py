@@ -37,3 +37,13 @@ async def read_me(principal: PrincipalDep, database: DatabaseDep) -> MeRead:
         token_roles=sorted(principal.roles),
         identity=registered,
     )
+
+
+
+"""
+It returns what the token says (subject, client_id, roles) plus 
+what the database knows about that client_id: the registered identity,
+ its project, team, and status. It's a debugging and self-check endpoint. 
+A business app can call it to confirm "Am I registered? Am I approved? Which project am I in?"
+
+"""
